@@ -92,3 +92,33 @@
    92  ls -Z /mephi-web/index.html
    93  curl http://localhost/
    94  history > ~/history.out
+   95  exit
+   96  chage -M 90 root
+   97  chage -l root
+   98  journalctl -q --no-pager _COMM=login | grep pam_access > ~/pam_access.out
+   99  cat ~/pam_access.out
+  100  sudo -u user1 sh -c 'echo one > ~/p; chmod 600 ~/p; cp --no-preserve=mode ~/p /data/mephi-2026/copy.txt; rm ~/p'
+  101  sudo -u curator1 cat /data/mephi-2026/copy.txt
+  102  getfacl -p /data/mephi-2026/copy.txt
+  103  history > ~/history.out
+  104  poweroff
+  105  clear
+  106  chage -l root | head -n 2
+  107  sudo -u user1 sh -c 'echo one > ~/p; chmod 600 ~/p; cp --no-preserve=mode ~/p /data/mephi-2026/copy.txt; rm ~/p'
+  108  sudo -u user2 sh -c 'echo two >> /data/mephi-2026/copy.txt'
+  109  sudo -u curator1 cat /data/mephi-2026/copy.txt
+  110  sudo -u curator1 sh -c 'echo bad >> /data/mephi-2026/copy.txt'
+  111  sudo -u nobody cat /data/mephi-2026/copy.txt
+  112  getfacl -p /data/mephi-2026/copy.txt
+  113  history > ~/history.out
+  114  poweroff
+  115  rm -f /data/mephi-2026/copy.txt
+  116  clear
+  117  sudo -u user1 chmod g+rw /data/mephi-2026/c2.txt
+  118  sudo -u user2 sh -c 'echo two >> /data/mephi-2026/c2.txt'
+  119  sudo -u curator1 cat /data/mephi-2026/c2.txt
+  120  sudo -u curator1 sh -c 'echo bad >> /data/mephi-2026/c2.txt'
+  121  sudo -u nobody cat /data/mephi-2026/c2.txt
+  122  getfacl -p /data/mephi-2026/c2.txt
+  123  ls -l /data/mephi-2026
+  124  history > ~/history.out
