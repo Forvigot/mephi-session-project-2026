@@ -1,0 +1,94 @@
+    1  hostnamectl set-hostname mephi-2026.domain.local
+    2  hostname
+    3  nmcli -g ipv4.method connection show enp0s3
+    4  ip -4 addr show enp0s3
+    5  ping -c 4 8.8.8.8 > ~/ping.out
+    6  cat ~/ping.out
+    7  dnf -y update > /tmp/update.log 2>&1; tail -n 3 /tmp/update.log
+    8  dnf -y install nginx libcap-ng-utils policycoreutils-python-utils > /tmp/install.log 2>&1; tail -n 8 /tmp/install.log
+    9  dnf download --destdir /tmp tcpdump.x86_64
+   10  rpm -ivh /tmp/tcpdump-*.x86_64.rpm
+   11  rpm -q nginx libcap-ng-utils tcpdump
+   12  ls -l /usr/sbin/tcpdump
+   13  history -a
+   14  reboot
+   15  lsblk
+   16  parted -s /dev/sdb mklabel gpt mkpart primary ext4 1MiB 100%
+   17  mkfs.ext4 -q -L MEPHI_WEB /dev/sdb1
+   18  blkid /dev/sdb1
+   19  mkdir /mephi-web
+   20  echo 'LABEL=MEPHI_WEB /mephi-web ext4 defaults 0 2' >> /etc/fstab
+   21  systemctl daemon-reload
+   22  mount /mephi-web
+   23  findmnt /mephi-web
+   24  systemctl enable --now nginx
+   25  systemctl is-enabled nginx; systemctl is-active nginx
+   26  echo 'Hello from Student: M265323' > /mephi-web/index.html
+   27  sed -i 's#^        root         /usr/share/nginx/html;#        root         /mephi-web;#' /etc/nginx/nginx.conf
+   28  nginx -t
+   29  systemctl restart nginx
+   30  getenforce
+   31  ls -dZ /mephi-web /mephi-web/index.html
+   32  curl -s http://localhost/ | head -n 3
+   33  semanage fcontext -a -t httpd_sys_content_t '/mephi-web(/.*)?'
+   34  restorecon -Rv /mephi-web
+   35  ls -dZ /mephi-web /mephi-web/index.html
+   36  curl http://localhost/
+   37  sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS\t90/' /etc/login.defs
+   38  sed -i 's/^# minlen = 8/minlen = 12/' /etc/security/pwquality.conf
+   39  grep -n '^minlen' /etc/security/pwquality.conf; grep '^PASS_MAX' /etc/login.defs
+   40  groupadd -g 4444 curators
+   41  groupadd -g 5500 mephi
+   42  useradd -u 5501 -G mephi user1
+   43  useradd -u 5502 -G mephi user2
+   44  useradd -u 5503 -G mephi user3
+   45  useradd -G curators curator1
+   46  useradd -G curators curator2
+   47  for u in user1 user2 user3 curator1 curator2; do echo "$u:$(openssl rand -hex 8)"; done > ~/pw.txt; chmod 600 ~/pw.txt
+   48  cat ~/pw.txt | chpasswd
+   49  for u in user1 user2 user3 curator1 curator2; do id $u; chage -l $u | grep -i максим; done
+   50  mkdir -p /data/mephi-2026
+   51  chown root:mephi /data/mephi-2026
+   52  chmod 2770 /data/mephi-2026
+   53  setfacl -m g:curators:rx /data/mephi-2026
+   54  setfacl -d -m u::rwx,g::rwx,g:curators:rx,o::- /data/mephi-2026
+   55  getfacl -p /data/mephi-2026
+   56  sudo -u user1 sh -c 'umask 077; echo one > /data/mephi-2026/a.txt; mkdir /data/mephi-2026/d'
+   57  sudo -u user2 sh -c 'echo two >> /data/mephi-2026/a.txt; echo x > /data/mephi-2026/d/b.txt'
+   58  sudo -u user3 sh -c 'echo three >> /data/mephi-2026/d/b.txt; cat /data/mephi-2026/a.txt'
+   59  sudo -u curator1 cat /data/mephi-2026/a.txt /data/mephi-2026/d/b.txt
+   60  sudo -u curator2 sh -c 'echo bad >> /data/mephi-2026/a.txt'
+   61  sudo -u curator1 touch /data/mephi-2026/new.txt
+   62  sudo -u curator1 rm -f /data/mephi-2026/a.txt
+   63  sudo -u nobody ls /data/mephi-2026
+   64  getfacl -p /data/mephi-2026/a.txt
+   65  ls -l /usr/sbin/tcpdump
+   66  sudo -u user1 tcpdump -c 1 -i enp0s3
+   67  chmod u-s /usr/sbin/tcpdump
+   68  setcap cap_net_raw,cap_net_admin=ep /usr/sbin/tcpdump
+   69  getcap /usr/sbin/tcpdump
+   70  filecap /usr/sbin/tcpdump
+   71  ping -c 6 8.8.8.8 > /dev/null & sleep 1; sudo -u user1 tcpdump -n -c 3 -i enp0s3 icmp
+   72  echo '-:(curators):LOCAL' >> /etc/security/access.conf
+   73  sed -i '/pam_nologin.so/a account    required     pam_access.so' /etc/pam.d/login
+   74  cat /etc/pam.d/login
+   75  history -a
+   76  exit
+   77  reboot
+   78  rm -f ~/pw.txt
+   79  ping -c 4 8.8.8.8 > ~/ping.out
+   80  stat /data/mephi-2026 > ~/stat.out
+   81  getcap /usr/sbin/tcpdump > ~/getcap.out
+   82  dnf history > ~/dnf.out
+   83  journalctl -u nginx -b > ~/journalctl.out
+   84  getenforce > ~/getenforce.out
+   85  stat /mephi-web >> ~/stat.out
+   86  curl -s http://localhost/ > ~/curl.out
+   87  getfacl -p /data/mephi-2026 > ~/getfacl.out
+   88  clear
+   89  hostname
+   90  getenforce
+   91  findmnt /mephi-web
+   92  ls -Z /mephi-web/index.html
+   93  curl http://localhost/
+   94  history > ~/history.out
